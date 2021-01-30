@@ -1,3 +1,3 @@
-[submodule "npns-api"]
-	path = api
-	url = https://github.com/koniferous22/npns-api.git
+[submodule "gateway"]
+	path = gateway
+	url = https://github.com/koniferous22/npns-gateway.git
