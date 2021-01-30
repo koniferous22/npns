@@ -1,0 +1,9 @@
+services:
+  gateway:
+    build: ./api
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/api
+    environment:
+      NODE_ENV: development
