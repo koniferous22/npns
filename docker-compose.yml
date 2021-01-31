@@ -1,29 +1,51 @@
 version: "3.8"
 services:
   gateway:
-    build: ./gateway
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=development
+        - IMAGE_TAG_GATEWAY_ALPINE
     ports:
       - "4000:4000"
     volumes:
-      - type: bind
-        source: ./gateway
-        target: /usr/src/gateway
+      - ./gateway:/usr/src/gateway
     environment:
-      - NODE_ENV=development
-      - TAG_GATEWAY_ALPINE
       - ACCOUNT_DB_TYPE=postgres
       - ACCOUNT_DB_HOST=account_db
       - ACCOUNT_DB_PORT=${ACCOUNT_POSTGRES_PORT}
       - ACCOUNT_DB_USERNAME=${ACCOUNT_POSTGRES_USER}
       - ACCOUNT_DB_PASSWORD=${ACCOUNT_POSTGRES_PASSWORD}
       - ACCOUNT_DB_DATABASE=${ACCOUNT_POSTGRES_DATABASE}
+      - TAG_DB_TYPE=mariadb
+      - TAG_DB_HOST=tag_db
+      - TAG_DB_PORT=${TAG_MARIADB_PORT}
+      - TAG_DB_USERNAME=${TAG_MARIADB_USER}
+      - TAG_DB_PASSWORD=${TAG_MARIADB_PASSWORD}
+      - TAG_DB_DATABASE=${TAG_MARIADB_DATABASE}
     depends_on:
       - account_db
+      - tag_db
   account_db:
-    image: "postgres:${TAG_POSTGRES}"
+    image: "postgres:${IMAGE_TAG_POSTGRES}"
     ports:
       - ${ACCOUNT_POSTGRES_PORT}:${ACCOUNT_POSTGRES_PORT}
     environment:
       - POSTGRES_DB=${ACCOUNT_POSTGRES_DATABASE}
       - POSTGRES_USER=${ACCOUNT_POSTGRES_USER}
       - POSTGRES_PASSWORD=${ACCOUNT_POSTGRES_PASSWORD}
+    volumes: 
+      - ./.docker/account_db:/var/lib/postgresql/data
+  tag_db:
+    image: "mariadb:${IMAGE_TAG_MARIADB}"
+    ports:
+      - ${TAG_MARIADB_PORT}:${TAG_MARIADB_PORT}
+    environment: 
+      - MYSQL_ROOT_PASSWORD=${TAG_MARIADB_ROOT_PWD}
+      - MYSQL_DATABASE=${TAG_MARIADB_DATABASE}
+      - MYSQL_USER=${TAG_MARIADB_USER}
+      - MYSQL_PASSWORD=${TAG_MARIADB_PASSWORD}
+    volumes:
+      - ./.docker/tag_db:/var/lib/mysql
+
