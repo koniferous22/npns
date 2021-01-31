@@ -8,7 +8,7 @@ services:
         - NODE_ENV=development
         - IMAGE_TAG_GATEWAY_ALPINE
     ports:
-      - "4000:4000"
+      - ${GATEWAY_PORT}:${GATEWAY_PORT}
     volumes:
       - ./gateway:/usr/src/gateway
     environment:
@@ -48,4 +48,10 @@ services:
       - MYSQL_PASSWORD=${TAG_MARIADB_PASSWORD}
     volumes:
       - ./.docker/tag_db:/var/lib/mysql
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
 
