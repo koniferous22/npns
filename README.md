@@ -5,5 +5,15 @@ Top-level repository
 
 1. clone the repository with submodules with `git clone --recursive <<REPO_URL>>` to get all necessary code
   * In case you process gets interrupted you can probably fix it somehow with `git submodule` commands, although I'd suggest removing files and starting again
-2. `docker-compose up -d`
-3. Have fun
+2. Create `.env` file with sample config
+```
+TAG_GATEWAY_ALPINE=lts-alpine3.12
+TAG_POSTGRES=latest
+
+ACCOUNT_POSTGRES_USER=npns_user
+ACCOUNT_POSTGRES_PASSWORD=secret_password
+ACCOUNT_POSTGRES_PORT=5432
+ACCOUNT_POSTGRES_DATABASE=account
+```
+3. `docker-compose up -d`
+4. Have fun

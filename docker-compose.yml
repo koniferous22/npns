@@ -1,3 +1,4 @@
+version: "3.8"
 services:
   gateway:
     build: ./gateway
@@ -6,4 +7,22 @@ services:
     volumes:
       - .:/api
     environment:
-      NODE_ENV: development
+      - NODE_ENV=development
+      - TAG_GATEWAY_ALPINE
+      - ACCOUNT_DB_TYPE=postgres
+      - ACCOUNT_DB_HOST=account_db
+      - ACCOUNT_DB_PORT=${ACCOUNT_POSTGRES_PORT}
+      - ACCOUNT_DB_USERNAME=${ACCOUNT_POSTGRES_USER}
+      - ACCOUNT_DB_PASSWORD=${ACCOUNT_POSTGRES_PASSWORD}
+      - ACCOUNT_DB_DATABASE=${ACCOUNT_POSTGRES_DATABASE}
+    depends_on:
+      - account_db
+  account_db:
+    image: "postgres:${TAG_POSTGRES}"
+    ports:
+      - ${ACCOUNT_POSTGRES_PORT}:${ACCOUNT_POSTGRES_PORT}
+    environment:
+      - POSTGRES_DB=${ACCOUNT_POSTGRES_DATABASE}
+      - POSTGRES_USER=${ACCOUNT_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${ACCOUNT_POSTGRES_PASSWORD}
+
