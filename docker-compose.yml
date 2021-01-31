@@ -5,7 +5,9 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      - .:/api
+      - type: bind
+        source: ./gateway
+        target: /usr/src/gateway
     environment:
       - NODE_ENV=development
       - TAG_GATEWAY_ALPINE
@@ -25,4 +27,3 @@ services:
       - POSTGRES_DB=${ACCOUNT_POSTGRES_DATABASE}
       - POSTGRES_USER=${ACCOUNT_POSTGRES_USER}
       - POSTGRES_PASSWORD=${ACCOUNT_POSTGRES_PASSWORD}
-
