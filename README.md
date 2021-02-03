@@ -18,6 +18,7 @@ Top-level repository
   IMAGE_TAG_POSTGRES=latest
   IMAGE_TAG_MARIADB=latest
 
+  GATEWAY_CONTAINER_NAME=npns_gateway
   GATEWAY_PORT=4000
 
   ACCOUNT_POSTGRES_USER=npns_user
@@ -33,8 +34,17 @@ Top-level repository
   TAG_MARIADB_PASSWORD=secret_password
   TAG_MARIADB_PORT=3306
   ```
-4. `docker-compose up`
+  * Asks for option whether you need root permissions to run docker (in most cases not necessary)
+  * Populates databases on shared volume with migrations located in
+    * `gateway/src/account-service/migrations/`
+    * `gateway/src/tag-service/migrations/`
+  * Essentially runs following commands
+  ```
+  ./exec-in-container.sh npns_gateway $exec_in_docker_opts -- npm run orm -- migration:run -c account
+  ./exec-in-container.sh npns_gateway $exec_in_docker_opts -- npm run orm -- migration:run -c tag
+  ```
+4. Run the stack with `docker-compose up`
 5. Have fun
 
 **TODO**
-* fix docker tags
+* pgadmin support in dev `docker-compose`

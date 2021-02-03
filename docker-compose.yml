@@ -27,6 +27,7 @@ services:
     depends_on:
       - account_db
       - tag_db
+    container_name: ${GATEWAY_CONTAINER_NAME}
   account_db:
     image: "postgres:${IMAGE_TAG_POSTGRES}"
     ports:
@@ -53,5 +54,6 @@ services:
     restart: always
     ports:
       - 8080:8080
-
-
+    depends_on: 
+      - account_db
+      - tag_db

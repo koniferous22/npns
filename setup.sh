@@ -16,6 +16,7 @@ IMAGE_TAG_GATEWAY_ALPINE=lts-alpine3.12
 IMAGE_TAG_POSTGRES=latest
 IMAGE_TAG_MARIADB=latest
 
+GATEWAY_CONTAINER_NAME=npns_gateway
 GATEWAY_PORT=4000
 
 ACCOUNT_POSTGRES_USER=npns_user
@@ -31,4 +32,38 @@ TAG_MARIADB_USER=npns_user
 TAG_MARIADB_PASSWORD=secret_password
 TAG_MARIADB_PORT=3306
 " > "$cloned_dir/.env"
+
+function yesno() {
+    local __resultvar=$1
+    local input=
+    while true
+    do
+        read -r -p "$2? [Y/n] " input
+        case $input in
+        [yY][eE][sS]|[yY])
+            echo "Yes"
+            eval $__resultvar=$input
+            break
+        ;;
+        [nN][oO]|[nN])
+            echo "No"
+            break
+        ;;
+        *)
+            echo "Invalid input..."
+            ;;
+        esac
+    done
+}
+yesno_result=
+echo "Executing migrations"
+yesno yesno_result "Do you need root permissions to connect to container"
+exec_in_docker_opts=
+if [ $yesno_result ]; then
+    exec_in_docker_opts="--root"
+fi
+
+$cloned_dir/exec-in-container.sh npns_gateway $exec_in_docker_opts -- npm run orm -- migration:run -c account
+$cloned_dir/exec-in-container.sh npns_gateway $exec_in_docker_opts -- npm run orm -- migration:run -c tag
+
 echo "Setup complete"
