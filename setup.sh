@@ -15,6 +15,7 @@ echo "# TODO when editing this file, please update
 IMAGE_TAG_GATEWAY_ALPINE=lts-alpine3.12
 IMAGE_TAG_POSTGRES=latest
 IMAGE_TAG_MARIADB=latest
+IMAGE_TAG_MONGO=latest
 
 GATEWAY_CONTAINER_NAME=npns_gateway
 GATEWAY_PORT=4000
@@ -22,15 +23,20 @@ GATEWAY_PORT=4000
 ACCOUNT_POSTGRES_USER=npns_user
 ACCOUNT_POSTGRES_PASSWORD=secret_password
 ACCOUNT_POSTGRES_PORT=5432
-# not needed
-#ACCOUNT_POSTGRES_HOST=0.0.0.0
 ACCOUNT_POSTGRES_DATABASE=account
 
-TAG_MARIADB_ROOT_PWD=mariadb_root_pwd
-TAG_MARIADB_DATABASE=tag
 TAG_MARIADB_USER=npns_user
 TAG_MARIADB_PASSWORD=secret_password
+TAG_MARIADB_ROOT_PWD=mariadb_root_pwd
+TAG_MARIADB_DATABASE=tag
 TAG_MARIADB_PORT=3306
+
+CHALLENGE_MONGODB_ROOT_USER=root
+CHALLENGE_MONGODB_ROOT_PASSWORD=mongo_root_password
+CHALLENGE_MONGODB_USER=npns_user
+CHALLENGE_MONGODB_PASSWORD=secret_password
+CHALLENGE_MONGODB_DATABASE=challenge
+CHALLENGE_MONGODB_PORT=27017
 " > "$cloned_dir/.env"
 
 function yesno() {
@@ -55,15 +61,28 @@ function yesno() {
         esac
     done
 }
+
 yesno_result=
-echo "Executing migrations"
 yesno yesno_result "Do you need root permissions to connect to container"
 exec_in_docker_opts=
 if [ $yesno_result ]; then
-    exec_in_docker_opts="--root"
+    exec_in_docker_opts="--privileged"
 fi
 
-$cloned_dir/exec-in-container.sh npns_gateway $exec_in_docker_opts -- npm run orm -- migration:run -c account
-$cloned_dir/exec-in-container.sh npns_gateway $exec_in_docker_opts -- npm run orm -- migration:run -c tag
+echo "Loading generated configuration"
+source "$cloned_dir/.env"
+
+# TODO add missing condition sth like 'if (is_mongo_used)' when required
+user_record="{user:\"$CHALLENGE_MONGODB_USER\",pwd:\"$CHALLENGE_MONGODB_PASSWORD\",roles:[{role:\"readWrite\",db:\"$CHALLENGE_MONGODB_DATABASE\"}]}"
+create_db_collection_js="db.getMongo().getDB(\"$CHALLENGE_MONGODB_DATABASE\").createCollection(\"$CHALLENGE_MONGODB_DATABASE\")"
+create_db_user_js="db.getMongo().getDB(\"$CHALLENGE_MONGODB_DATABASE\").createUser($user_record)"
+echo "Creating mongo user for challenge database"
+docker-compose exec @exec_in_docker_opts challenge_db mongo -u $CHALLENGE_MONGODB_ROOT_USER -p $CHALLENGE_MONGODB_ROOT_PASSWORD $CHALLENGE_MONGODB_DATABASE --eval "$create_db_collection_js;$create_db_user_js"
+
+echo "Executing migrations"
+cd $cloned_dir
+docker-compose exec $exec_in_docker_opts gateway npm run orm -- migration:run -c account
+docker-compose exec $exec_in_docker_opts gateway npm run orm -- migration:run -c tag
+docker-compose exec $exec_in_docker_opts gateway npm run orm -- migration:run -c challenge 
 
 echo "Setup complete"

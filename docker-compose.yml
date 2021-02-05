@@ -24,8 +24,15 @@ services:
       - TAG_DB_USERNAME=${TAG_MARIADB_USER}
       - TAG_DB_PASSWORD=${TAG_MARIADB_PASSWORD}
       - TAG_DB_DATABASE=${TAG_MARIADB_DATABASE}
+      - CHALLENGE_DB_TYPE=mongodb
+      - CHALLENGE_DB_HOST=challenge_db
+      - CHALLENGE_DB_PORT=${CHALLENGE_MONGODB_PORT}
+      - CHALLENGE_DB_USERNAME=${CHALLENGE_MONGODB_USER}
+      - CHALLENGE_DB_PASSWORD=${CHALLENGE_MONGODB_PASSWORD}
+      - CHALLENGE_DB_DATABASE=${CHALLENGE_MONGODB_DATABASE}
     depends_on:
       - account_db
+      - challenge_db
       - tag_db
     container_name: ${GATEWAY_CONTAINER_NAME}
   account_db:
@@ -49,6 +56,17 @@ services:
       - MYSQL_PASSWORD=${TAG_MARIADB_PASSWORD}
     volumes:
       - ./.docker/tag_db:/var/lib/mysql
+  challenge_db:
+    image: "mongo:${IMAGE_TAG_MONGO}"
+    ports:
+      - ${CHALLENGE_MONGODB_PORT}:${CHALLENGE_MONGODB_PORT}
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${CHALLENGE_MONGODB_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${CHALLENGE_MONGODB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${CHALLENGE_MONGODB_DATABASE}
+    volumes:
+      - ./.docker/challenge_db:/data/db
+    command: mongod --auth
   adminer:
     image: adminer
     restart: always

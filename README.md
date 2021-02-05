@@ -1,6 +1,11 @@
 # npns
 Top-level repository
 
+## Requirements
+* npm
+* node
+* docker (+ configure `docker` group for distributions such as fedora)
+
 ## Steps to run
 
 1. clone the repository with submodules with `git clone --recursive <<REPO_URL>>` to get all necessary code
@@ -17,6 +22,7 @@ Top-level repository
   IMAGE_TAG_GATEWAY_ALPINE=lts-alpine3.12
   IMAGE_TAG_POSTGRES=latest
   IMAGE_TAG_MARIADB=latest
+  IMAGE_TAG_MONGO=latest
 
   GATEWAY_CONTAINER_NAME=npns_gateway
   GATEWAY_PORT=4000
@@ -24,27 +30,42 @@ Top-level repository
   ACCOUNT_POSTGRES_USER=npns_user
   ACCOUNT_POSTGRES_PASSWORD=secret_password
   ACCOUNT_POSTGRES_PORT=5432
-  # not needed
-  #ACCOUNT_POSTGRES_HOST=0.0.0.0
   ACCOUNT_POSTGRES_DATABASE=account
 
-  TAG_MARIADB_ROOT_PWD=mariadb_root_pwd
-  TAG_MARIADB_DATABASE=tag
   TAG_MARIADB_USER=npns_user
   TAG_MARIADB_PASSWORD=secret_password
+  TAG_MARIADB_ROOT_PWD=mariadb_root_pwd
+  TAG_MARIADB_DATABASE=tag
   TAG_MARIADB_PORT=3306
+
+  CHALLENGE_MONGODB_USER=npns_user
+  CHALLENGE_MONGODB_PASSWORD=secret_password
+  CHALLENGE_MONGODB_DATABASE=challenge
+  CHALLENGE_MONGODB_PORT=27017
   ```
   * Asks for option whether you need root permissions to run docker (in most cases not necessary)
+    * For some linux system (edge cases) it should be possible to configure system group
+  * Sets up mongodb user and collection, by executing mongo shell and evaluating javascriptn
+    * `mongo -u $CHALLENGE_MONGODB_ROOT_USER -p $CHALLENGE_MONGODB_ROOT_PASSWORD $CHALLENGE_MONGODB_DATABASE --eval "<JAVASCRIPT_CODE>"`
   * Populates databases on shared volume with migrations located in
     * `gateway/src/account-service/migrations/`
     * `gateway/src/tag-service/migrations/`
   * Essentially runs following commands
   ```
-  ./exec-in-container.sh npns_gateway $exec_in_docker_opts -- npm run orm -- migration:run -c account
-  ./exec-in-container.sh npns_gateway $exec_in_docker_opts -- npm run orm -- migration:run -c tag
+  docker-compose exec gateway npm run orm -- migration:run -c account
+  docker-compose exec gateway npm run orm -- migration:run -c tag
   ```
 4. Run the stack with `docker-compose up`
 5. Have fun
 
 **TODO**
 * pgadmin support in dev `docker-compose`
+* docker compose with sharded mongo infrastructure (for example: https://dzone.com/articles/composing-a-sharded-mongodb-on-docker)
+* Apollo gateway setup with following adjustments
+  * each service will have separate origin
+  * each service will take care of db separately
+    * no unified `typeorm` layer
+    * no shared db connections in singleton
+* Reconfigure connection for production use
+  * Make sure that db connections from gateway/services don't have root permissions
+
