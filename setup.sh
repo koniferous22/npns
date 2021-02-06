@@ -6,6 +6,7 @@ echo "Location of setup script: \"$cloned_dir\""
 echo "Setting up directories for docker volumes"
 mkdir -p "$cloned_dir/.docker/account_db"
 mkdir -p "$cloned_dir/.docker/tag_db"
+mkdir -p "$cloned_dir/.docker/challenge_db"
 
 echo "Initializing .env file"
 echo "# TODO when editing this file, please update
@@ -63,26 +64,11 @@ function yesno() {
 }
 
 yesno_result=
-yesno yesno_result "Do you need root permissions to connect to container"
-exec_in_docker_opts=
+yesno yesno_result "Do you need root permissions to work with docker"
 if [ $yesno_result ]; then
-    exec_in_docker_opts="--privileged"
+    sudo "$cloned_dir/docker_setup.sh"
+else
+    "$cloned_dir/docker_setup.sh"
 fi
 
-echo "Loading generated configuration"
-source "$cloned_dir/.env"
-
-# TODO add missing condition sth like 'if (is_mongo_used)' when required
-user_record="{user:\"$CHALLENGE_MONGODB_USER\",pwd:\"$CHALLENGE_MONGODB_PASSWORD\",roles:[{role:\"readWrite\",db:\"$CHALLENGE_MONGODB_DATABASE\"}]}"
-create_db_collection_js="db.getMongo().getDB(\"$CHALLENGE_MONGODB_DATABASE\").createCollection(\"$CHALLENGE_MONGODB_DATABASE\")"
-create_db_user_js="db.getMongo().getDB(\"$CHALLENGE_MONGODB_DATABASE\").createUser($user_record)"
-echo "Creating mongo user for challenge database"
-docker-compose exec @exec_in_docker_opts challenge_db mongo -u $CHALLENGE_MONGODB_ROOT_USER -p $CHALLENGE_MONGODB_ROOT_PASSWORD $CHALLENGE_MONGODB_DATABASE --eval "$create_db_collection_js;$create_db_user_js"
-
-echo "Executing migrations"
-cd $cloned_dir
-docker-compose exec $exec_in_docker_opts gateway npm run orm -- migration:run -c account
-docker-compose exec $exec_in_docker_opts gateway npm run orm -- migration:run -c tag
-docker-compose exec $exec_in_docker_opts gateway npm run orm -- migration:run -c challenge 
-
-echo "Setup complete"
+echo "Setup finished"
