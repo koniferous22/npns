@@ -4,3 +4,6 @@
 [submodule "npns-db"]
 	path = db
 	url = https://github.com/koniferous22/npns-db.git
+[submodule "db"]
+	path = npns-db
+	url = https://github.com/koniferous22/npns-db.git
