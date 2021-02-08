@@ -25,20 +25,21 @@ docker run -it -d \
         mongod --auth
 
 user_record="{user:\"$CHALLENGE_MONGODB_USER\",pwd:\"$CHALLENGE_MONGODB_PASSWORD\",roles:[{role:\"readWrite\",db:\"$CHALLENGE_MONGODB_DATABASE\"}]}"
-create_db_collection_js="db.getMongo().getDB(\"$CHALLENGE_MONGODB_DATABASE\").createCollection(\"$CHALLENGE_MONGODB_DATABASE\")"
-create_db_user_js="db.getMongo().getDB(\"$CHALLENGE_MONGODB_DATABASE\").createUser($user_record)"
+create_db_collection_js="db.getSiblingDB(\"$CHALLENGE_MONGODB_DATABASE\").createCollection(\"$CHALLENGE_MONGODB_DATABASE\")"
+create_db_user_js="db.getSiblingDB(\"$CHALLENGE_MONGODB_DATABASE\").createUser($user_record)"
 # Collection needs to be setup, because otherwise database won't be created
 echo "Creating collection and mongo user for challenge database"
-docker run -it --rm --network "$temp_network"  mongo \
-    mongo --host "$temp_name" \
-        -u "$CHALLENGE_MONGODB_ROOT_USER" \
-        -p "$CHALLENGE_MONGODB_ROOT_PASSWORD" \
-        "$CHALLENGE_MONGODB_DATABASE"
-#         --eval "$create_db_collection_js;$create_db_user_js"
+docker run -it --rm --network "$temp_network" -v "$abs_path:/utils" mongo \
+    bash -c "/utils/wait-for-it.sh -h \"$temp_name\" -p \"$CHALLENGE_MONGODB_PORT\" && sleep 10 && 
+        mongo --host $temp_name \
+            -u $CHALLENGE_MONGODB_ROOT_USER \
+            -p $CHALLENGE_MONGODB_ROOT_PASSWORD \
+            --eval '$create_db_collection_js;$create_db_user_js'"
 # NOTE: all of this is required in order to run mongod in --auth mode, it assumes that user and database already exist
 
-echo "Stopping temporary container"
+echo "Stopping and removing temporary container"
 docker stop "$temp_name"
+docker container rm "$temp_name"
 
 echo "Removing temporary network"
 docker network rm "$temp_network"
