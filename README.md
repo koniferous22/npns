@@ -13,6 +13,7 @@ Top-level repository
 2. `cd npns`
 3. Run `./setup.sh`, this command does following steps
   * Creates directory .docker (ignored by `.gitignore` where volumes will be stored)
+    * **(WORKAROUND)** For pgadmin adds permission to all users, because of some docker issues
   * Initialized `.env` file with following contents
   ```
   # TODO when editing this file, please update
@@ -23,6 +24,7 @@ Top-level repository
   IMAGE_TAG_POSTGRES=latest
   IMAGE_TAG_MARIADB=latest
   IMAGE_TAG_MONGO=latest
+  IMAGE_TAG_PGADMIN=latest
 
   GATEWAY_CONTAINER_NAME=npns_gateway
   GATEWAY_PORT=4000
@@ -32,20 +34,34 @@ Top-level repository
   ACCOUNT_POSTGRES_PORT=5432
   ACCOUNT_POSTGRES_DATABASE=account
 
-  TAG_MARIADB_USER=npns_user
-  TAG_MARIADB_PASSWORD=secret_password
-  TAG_MARIADB_ROOT_PWD=mariadb_root_pwd
-  TAG_MARIADB_DATABASE=tag
-  TAG_MARIADB_PORT=3306
+  # FOR now not needed, because tag database will share same instance as account database
+  # Will be separated in the future
+  # TAG_MARIADB_USER=npns_user
+  # TAG_MARIADB_PASSWORD=secret_password
+  # TAG_MARIADB_ROOT_PWD=mariadb_root_pwd
+  # TAG_MARIADB_DATABASE=tag
+  # TAG_MARIADB_PORT=3306
 
+  # NOTE for now should be identical with account setup
+  TAG_POSTGRES_USER=npns_user
+  TAG_POSTGRES_PASSWORD=secret_password
+  TAG_POSTGRES_PORT=5432
+  TAG_POSTGRES_DATABASE=account
+
+  CHALLENGE_MONGODB_ROOT_USER=root
+  CHALLENGE_MONGODB_ROOT_PASSWORD=mongo_root_password
   CHALLENGE_MONGODB_USER=npns_user
   CHALLENGE_MONGODB_PASSWORD=secret_password
   CHALLENGE_MONGODB_DATABASE=challenge
   CHALLENGE_MONGODB_PORT=27017
+
+  PGADMIN_EMAIL=admin@postgres.com
+  PGADMIN_PASSWORD=password
+  PGADMIN_PORT=8080
   ```
   * Asks for option whether you need root permissions to run docker (in most cases not necessary)
     * For some linux system (edge cases) it should be possible to configure system group
-  * Sets up mongodb user and collection, by executing mongo shell and evaluating javascriptn
+  * Sets up mongodb user and collection, by executing mongo shell and evaluating javascript
     * `mongo -u $CHALLENGE_MONGODB_ROOT_USER -p $CHALLENGE_MONGODB_ROOT_PASSWORD $CHALLENGE_MONGODB_DATABASE --eval "<JAVASCRIPT_CODE>"`
   * Populates databases on shared volume with migrations located in
     * `gateway/src/account-service/migrations/`
@@ -68,4 +84,4 @@ Top-level repository
     * no shared db connections in singleton
 * Reconfigure connection for production use
   * Make sure that db connections from gateway/services don't have root permissions
-
+* Split account and tag into two separate db instances due to data security

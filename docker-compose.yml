@@ -13,17 +13,17 @@ services:
       - ./gateway:/usr/src/gateway
     environment:
       - ACCOUNT_DB_TYPE=postgres
-      - ACCOUNT_DB_HOST=account_db
+      - ACCOUNT_DB_HOST=account_tag_db
       - ACCOUNT_DB_PORT=${ACCOUNT_POSTGRES_PORT}
       - ACCOUNT_DB_USERNAME=${ACCOUNT_POSTGRES_USER}
       - ACCOUNT_DB_PASSWORD=${ACCOUNT_POSTGRES_PASSWORD}
       - ACCOUNT_DB_DATABASE=${ACCOUNT_POSTGRES_DATABASE}
-      - TAG_DB_TYPE=mariadb
-      - TAG_DB_HOST=tag_db
-      - TAG_DB_PORT=${TAG_MARIADB_PORT}
-      - TAG_DB_USERNAME=${TAG_MARIADB_USER}
-      - TAG_DB_PASSWORD=${TAG_MARIADB_PASSWORD}
-      - TAG_DB_DATABASE=${TAG_MARIADB_DATABASE}
+      - TAG_DB_TYPE=postgres
+      - TAG_DB_HOST=account_tag_db
+      - TAG_DB_PORT=${TAG_POSTGRES_PORT}
+      - TAG_DB_USERNAME=${TAG_POSTGRES_USER}
+      - TAG_DB_PASSWORD=${TAG_POSTGRES_PASSWORD}
+      - TAG_DB_DATABASE=${TAG_POSTGRES_DATABASE}
       - CHALLENGE_DB_TYPE=mongodb
       - CHALLENGE_DB_HOST=challenge_db
       - CHALLENGE_DB_PORT=${CHALLENGE_MONGODB_PORT}
@@ -31,11 +31,10 @@ services:
       - CHALLENGE_DB_PASSWORD=${CHALLENGE_MONGODB_PASSWORD}
       - CHALLENGE_DB_DATABASE=${CHALLENGE_MONGODB_DATABASE}
     depends_on:
-      - account_db
+      - account_tag_db
       - challenge_db
-      - tag_db
     container_name: ${GATEWAY_CONTAINER_NAME}
-  account_db:
+  account_tag_db:
     image: "postgres:${IMAGE_TAG_POSTGRES}"
     ports:
       - ${ACCOUNT_POSTGRES_PORT}:${ACCOUNT_POSTGRES_PORT}
@@ -44,18 +43,7 @@ services:
       - POSTGRES_USER=${ACCOUNT_POSTGRES_USER}
       - POSTGRES_PASSWORD=${ACCOUNT_POSTGRES_PASSWORD}
     volumes: 
-      - ./.docker/account_db:/var/lib/postgresql/data
-  tag_db:
-    image: "mariadb:${IMAGE_TAG_MARIADB}"
-    ports:
-      - ${TAG_MARIADB_PORT}:${TAG_MARIADB_PORT}
-    environment: 
-      - MYSQL_ROOT_PASSWORD=${TAG_MARIADB_ROOT_PWD}
-      - MYSQL_DATABASE=${TAG_MARIADB_DATABASE}
-      - MYSQL_USER=${TAG_MARIADB_USER}
-      - MYSQL_PASSWORD=${TAG_MARIADB_PASSWORD}
-    volumes:
-      - ./.docker/tag_db:/var/lib/mysql
+      - ./.docker/account_tag_db:/var/lib/postgresql/data
   challenge_db:
     image: "mongo:${IMAGE_TAG_MONGO}"
     ports:
@@ -67,14 +55,18 @@ services:
     volumes:
       - ./.docker/challenge_db:/data/db
     command: mongod --auth
-  adminer:
-    image: adminer
-    restart: always
+  pgadmin:
+    image: dpage/pgadmin4:${IMAGE_TAG_PGADMIN}
+    environment:
+        PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+        PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD} 
+        PGADMIN_LISTEN_PORT: 80
     ports:
-      - 8080:8080
-    depends_on: 
-      - account_db
-      - tag_db
+        - ${PGADMIN_PORT}:80
+    volumes:
+        - ./.docker/pgadmin:/var/lib/pgadmin
+    depends_on:
+        - account_tag_db 
   mongo-express:
     image: mongo-express
     restart: always
