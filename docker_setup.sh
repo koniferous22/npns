@@ -51,8 +51,9 @@ echo "Executing migrations"
 cd $cloned_dir
 docker-compose exec gateway npm run orm -- migration:run -c account
 docker-compose exec gateway npm run orm -- migration:run -c tag
-# docker-compose exec gateway npm run orm -- migration:run -c challenge 
+docker-compose exec gateway npm run migrate:mongo up
 
 # CLEANUP
 docker-compose down
 echo "Docker setup complete"
+echo "run \`docker-compose up\` to start the app"
