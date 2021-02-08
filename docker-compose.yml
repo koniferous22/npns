@@ -75,3 +75,15 @@ services:
     depends_on: 
       - account_db
       - tag_db
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${CHALLENGE_MONGODB_ROOT_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${CHALLENGE_MONGODB_ROOT_PASSWORD}
+      ME_CONFIG_MONGODB_SERVER: challenge_db
+    depends_on:
+      - challenge_db
+
