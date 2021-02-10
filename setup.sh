@@ -7,6 +7,7 @@ echo "Setting up directories for docker volumes"
 mkdir -p "$cloned_dir/.docker/account_tag_db"
 mkdir -p "$cloned_dir/.docker/challenge_db"
 mkdir -p "$cloned_dir/.docker/pgadmin"
+mkdir -p "$cloned_dir/.docker/postgres-scripts"
 echo "Setting permission '777, (all write)' for created pgadmin directory bc of docker errors"
 chmod 777 "$cloned_dir/.docker/pgadmin"
 
@@ -24,7 +25,9 @@ IMAGE_TAG_PGADMIN=latest
 GATEWAY_CONTAINER_NAME=npns_gateway
 GATEWAY_PORT=4000
 
-ACCOUNT_POSTGRES_USER=npns_user
+ACCOUNT_POSTGRES_ROOT_USER=root
+ACCOUNT_POSTGRES_ROOT_PASSWORD=postgres_root_password
+ACCOUNT_POSTGRES_USER=account
 ACCOUNT_POSTGRES_PASSWORD=secret_password
 ACCOUNT_POSTGRES_PORT=5432
 ACCOUNT_POSTGRES_DATABASE=account
@@ -38,10 +41,10 @@ ACCOUNT_POSTGRES_DATABASE=account
 # TAG_MARIADB_PORT=3306
 
 # NOTE for now should be identical with account setup
-TAG_POSTGRES_USER=npns_user
+TAG_POSTGRES_USER=tag
 TAG_POSTGRES_PASSWORD=secret_password
 TAG_POSTGRES_PORT=5432
-TAG_POSTGRES_DATABASE=account
+TAG_POSTGRES_DATABASE=tag
 
 CHALLENGE_MONGODB_ROOT_USER=root
 CHALLENGE_MONGODB_ROOT_PASSWORD=mongo_root_password

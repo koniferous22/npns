@@ -29,7 +29,7 @@ create_db_collection_js="db.getSiblingDB(\"$CHALLENGE_MONGODB_DATABASE\").create
 create_db_user_js="db.getSiblingDB(\"$CHALLENGE_MONGODB_DATABASE\").createUser($user_record)"
 # Collection needs to be setup, because otherwise database won't be created
 echo "Creating collection and mongo user for challenge database"
-docker run -it --rm --network "$temp_network" -v "$abs_path:/utils" mongo \
+docker run -it --rm --network "$temp_network" -v "$abs_path/wait-for-it.sh:/utils/wait-for-it.sh" mongo:$IMAGE_TAG_MONGO \
     bash -c "/utils/wait-for-it.sh -h \"$temp_name\" -p \"$CHALLENGE_MONGODB_PORT\" && sleep 10 && 
         mongo --host $temp_name \
             -u $CHALLENGE_MONGODB_ROOT_USER \
@@ -40,6 +40,32 @@ docker run -it --rm --network "$temp_network" -v "$abs_path:/utils" mongo \
 echo "Stopping and removing temporary container"
 docker stop "$temp_name"
 docker container rm "$temp_name"
+
+temp_name=temp_postgres_name
+
+echo "Generating scripting file for postgres entrypoint"
+echo "
+CREATE ROLE $ACCOUNT_POSTGRES_USER WITH
+  LOGIN
+  NOSUPERUSER
+  INHERIT
+  NOCREATEDB
+  NOCREATEROLE
+  NOREPLICATION
+  PASSWORD '$ACCOUNT_POSTGRES_PASSWORD';
+CREATE DATABASE $ACCOUNT_POSTGRES_DATABASE;
+GRANT ALL PRIVILEGES ON DATABASE $ACCOUNT_POSTGRES_DATABASE TO $ACCOUNT_POSTGRES_USER;
+CREATE ROLE $TAG_POSTGRES_USER WITH
+  LOGIN
+  NOSUPERUSER
+  INHERIT
+  NOCREATEDB
+  NOCREATEROLE
+  NOREPLICATION
+  PASSWORD '$TAG_POSTGRES_PASSWORD';
+CREATE DATABASE $TAG_POSTGRES_DATABASE;
+GRANT ALL PRIVILEGES ON DATABASE $TAG_POSTGRES_DATABASE TO $TAG_POSTGRES_USER;
+" >  "$abs_path/.docker/postgres-scripts/init-postgres.sql"
 
 echo "Removing temporary network"
 docker network rm "$temp_network"

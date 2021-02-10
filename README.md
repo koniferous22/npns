@@ -29,7 +29,9 @@ Top-level repository
   GATEWAY_CONTAINER_NAME=npns_gateway
   GATEWAY_PORT=4000
 
-  ACCOUNT_POSTGRES_USER=npns_user
+  ACCOUNT_POSTGRES_ROOT_USER=root
+  ACCOUNT_POSTGRES_ROOT_PASSWORD=postgres_root_password
+  ACCOUNT_POSTGRES_USER=account
   ACCOUNT_POSTGRES_PASSWORD=secret_password
   ACCOUNT_POSTGRES_PORT=5432
   ACCOUNT_POSTGRES_DATABASE=account
@@ -43,10 +45,10 @@ Top-level repository
   # TAG_MARIADB_PORT=3306
 
   # NOTE for now should be identical with account setup
-  TAG_POSTGRES_USER=npns_user
+  TAG_POSTGRES_USER=tag
   TAG_POSTGRES_PASSWORD=secret_password
   TAG_POSTGRES_PORT=5432
-  TAG_POSTGRES_DATABASE=account
+  TAG_POSTGRES_DATABASE=tag
 
   CHALLENGE_MONGODB_ROOT_USER=root
   CHALLENGE_MONGODB_ROOT_PASSWORD=mongo_root_password
@@ -85,3 +87,4 @@ Top-level repository
 * Reconfigure connection for production use
   * Make sure that db connections from gateway/services don't have root permissions
 * Split account and tag into two separate db instances due to data security
+* Extract db initialization scripts from `docker_setup.sh` into separate scripts
