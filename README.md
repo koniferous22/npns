@@ -20,7 +20,7 @@ Top-level repository
   # * README.md
   # * setup.sh
 
-  IMAGE_TAG_GATEWAY_ALPINE=lts-alpine3.12
+  IMAGE_TAG_GATEWAY_ALPINE=current-alpine3.12
   IMAGE_TAG_POSTGRES=latest
   IMAGE_TAG_MARIADB=latest
   IMAGE_TAG_MONGO=latest
