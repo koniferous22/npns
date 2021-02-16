@@ -55,6 +55,11 @@ services:
     volumes:
       - ./.docker/challenge_db:/data/db
     command: mongod --auth
+  verification_token_cache:
+    image: redis:${IMAGE_TAG_REDIS}
+    ports:
+      - ${VERIFICATION_TOKEN_CACHE_PORT}:${VERIFICATION_TOKEN_CACHE_PORT}
+    command: redis-server --requirepass ${VERIFICATION_TOKEN_CACHE_PASSWORD} --port ${VERIFICATION_TOKEN_CACHE_PORT}
   pgadmin:
     image: dpage/pgadmin4:${IMAGE_TAG_PGADMIN}
     environment:
