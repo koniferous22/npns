@@ -15,12 +15,8 @@ services:
       - PORT=${GATEWAY_PORT}
       - TAG_SERVICE_HOST=http://${TAG_SERVICE_CONTAINER_NAME}
       - TAG_SERVICE_PORT=${TAG_SERVICE_PORT}
-      - ACCOUNT_DB_TYPE=postgres
-      - ACCOUNT_DB_HOST=account_tag_db
-      - ACCOUNT_DB_PORT=${ACCOUNT_POSTGRES_PORT}
-      - ACCOUNT_DB_USERNAME=${ACCOUNT_POSTGRES_USER}
-      - ACCOUNT_DB_PASSWORD=${ACCOUNT_POSTGRES_PASSWORD}
-      - ACCOUNT_DB_DATABASE=${ACCOUNT_POSTGRES_DATABASE}
+      - ACCOUNT_SERVICE_HOST=http://${ACCOUNT_SERVICE_CONTAINER_NAME}
+      - ACCOUNT_SERVICE_PORT=${ACCOUNT_SERVICE_PORT}
       - CHALLENGE_DB_TYPE=mongodb
       - CHALLENGE_DB_HOST=challenge_db
       - CHALLENGE_DB_PORT=${CHALLENGE_MONGODB_PORT}
@@ -29,7 +25,7 @@ services:
       - CHALLENGE_DB_DATABASE=${CHALLENGE_MONGODB_DATABASE}
     depends_on:
       - tag_service
-      - account_tag_db
+      - account_service
       - challenge_db
     container_name: ${GATEWAY_CONTAINER_NAME}
   tag_service:
@@ -54,6 +50,34 @@ services:
     depends_on:
       - account_tag_db
     container_name: ${TAG_SERVICE_CONTAINER_NAME}
+  account_service:
+    build: 
+      context: ./services/account
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV
+        - IMAGE_TAG_ACCOUNT_SERVICE_ALPINE
+    ports:
+      - ${ACCOUNT_SERVICE_PORT}:${ACCOUNT_SERVICE_PORT}
+    volumes:
+      - ./services/account:/usr/src/account-service
+    environment: 
+      - PORT=${ACCOUNT_SERVICE_PORT}
+      - ACCOUNT_DB_TYPE=postgres
+      - ACCOUNT_DB_HOST=account_tag_db
+      - ACCOUNT_DB_PORT=${ACCOUNT_POSTGRES_PORT}
+      - ACCOUNT_DB_USERNAME=${ACCOUNT_POSTGRES_USER}
+      - ACCOUNT_DB_PASSWORD=${ACCOUNT_POSTGRES_PASSWORD}
+      - ACCOUNT_DB_DATABASE=${ACCOUNT_POSTGRES_DATABASE}
+    depends_on: 
+      - account_tag_db
+      - verification_token_cache
+    container_name: ${ACCOUNT_SERVICE_CONTAINER_NAME}
+  verification_token_cache:
+    image: redis:${IMAGE_TAG_REDIS}
+    ports:
+      - ${VERIFICATION_TOKEN_CACHE_PORT}:${VERIFICATION_TOKEN_CACHE_PORT}
+    command: redis-server --requirepass ${VERIFICATION_TOKEN_CACHE_PASSWORD} --port ${VERIFICATION_TOKEN_CACHE_PORT}
   account_tag_db:
     image: "postgres:${IMAGE_TAG_POSTGRES}"
     ports:
@@ -75,11 +99,6 @@ services:
     volumes:
       - ./.docker/challenge_db:/data/db
     command: mongod --auth
-  verification_token_cache:
-    image: redis:${IMAGE_TAG_REDIS}
-    ports:
-      - ${VERIFICATION_TOKEN_CACHE_PORT}:${VERIFICATION_TOKEN_CACHE_PORT}
-    command: redis-server --requirepass ${VERIFICATION_TOKEN_CACHE_PASSWORD} --port ${VERIFICATION_TOKEN_CACHE_PORT}
   pgadmin:
     image: dpage/pgadmin4:${IMAGE_TAG_PGADMIN}
     environment:
@@ -103,4 +122,3 @@ services:
       ME_CONFIG_MONGODB_SERVER: challenge_db
     depends_on:
       - challenge_db
-

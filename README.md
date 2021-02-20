@@ -94,14 +94,21 @@ Top-level repository
 5. Have fun
 
 **TODO**
-* pgadmin support in dev `docker-compose`
 * docker compose with sharded mongo infrastructure (for example: https://dzone.com/articles/composing-a-sharded-mongodb-on-docker)
-* Apollo gateway setup with following adjustments
-  * each service will have separate origin
-  * each service will take care of db separately
-    * no unified `typeorm` layer
-    * no shared db connections in singleton
 * Reconfigure connection for production use
   * Make sure that db connections from gateway/services don't have root permissions
 * Split account and tag into two separate db instances due to data security
 * Extract db initialization scripts from `docker_setup.sh` into separate scripts
+* Reusability improvements
+  * Base Docker Image for services
+  * Reusable config validation solution
+* E2E tests for graphql queries and mutations
+* Mocks to be able to develop modules individually and not work in huge monorepo
+* DB Future TODO:
+  * Define which dbs should have replicas
+    * What permissions are required to run migrations (potential refactor)
+    * NOTE: postgres issue encountered during development: mikro-orm automatically required replica permission for connection, which was unsafe for application use
+  * refactor into micro-orm where possible
+* Create production build
+  * Docker swarm mode
+  * Disable playground on production build
