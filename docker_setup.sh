@@ -75,9 +75,10 @@ docker-compose up -d
 
 echo "Executing migrations"
 cd $cloned_dir
-docker-compose exec gateway npm run orm -- migration:run -c account
-docker-compose exec gateway npm run orm -- migration:run -c tag
-docker-compose exec gateway npm run migrate:mongo up
+# Disbled until completed refactor
+#docker-compose exec gateway npm run orm -- migration:run -c account
+docker-compose exec tag_service npm run orm -- migration:run
+#docker-compose exec gateway npm run migrate:mongo up
 
 # CLEANUP
 docker-compose down

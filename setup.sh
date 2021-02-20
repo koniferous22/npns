@@ -16,14 +16,28 @@ echo "# TODO when editing this file, please update
 # * README.md
 # * setup.sh
 
+NODE_ENV=development
+
 IMAGE_TAG_GATEWAY_ALPINE=current-alpine3.12
+IMAGE_TAG_TAG_SERVICE_ALPINE=current-alpine3.12
+IMAGE_TAG_ACCOUNT_SERVICE_ALPINE=current-alpine3.12
 IMAGE_TAG_POSTGRES=latest
 IMAGE_TAG_MARIADB=latest
 IMAGE_TAG_MONGO=latest
 IMAGE_TAG_PGADMIN=latest
+IMAGE_TAG_REDIS=rc-buster
 
 GATEWAY_CONTAINER_NAME=npns_gateway
 GATEWAY_PORT=4000
+
+TAG_SERVICE_CONTAINER_NAME=npns_tag_service
+TAG_SERVICE_PORT=4001
+
+ACCOUNT_SERVICE_CONTAINER_NAME=npns_account_service
+ACCOUNT_SERVICE_PORT=4002
+
+CHALLENGE_SERVICE_CONTAINER_NAME=npns_challenge_service
+CHALLENGE_SERVICE_PORT=4003
 
 ACCOUNT_POSTGRES_ROOT_USER=root
 ACCOUNT_POSTGRES_ROOT_PASSWORD=postgres_root_password
@@ -59,6 +73,7 @@ VERIFICATION_TOKEN_CACHE_PASSWORD=secret_redis_password
 PGADMIN_EMAIL=admin@postgres.com
 PGADMIN_PASSWORD=password
 PGADMIN_PORT=8080
+
 " > "$cloned_dir/.env"
 
 function yesno() {

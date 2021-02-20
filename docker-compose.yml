@@ -5,25 +5,22 @@ services:
       context: ./gateway
       dockerfile: Dockerfile
       args:
-        - NODE_ENV=development
+        - NODE_ENV
         - IMAGE_TAG_GATEWAY_ALPINE
     ports:
       - ${GATEWAY_PORT}:${GATEWAY_PORT}
     volumes:
       - ./gateway:/usr/src/gateway
     environment:
+      - PORT=${GATEWAY_PORT}
+      - TAG_SERVICE_HOST=http://${TAG_SERVICE_CONTAINER_NAME}
+      - TAG_SERVICE_PORT=${TAG_SERVICE_PORT}
       - ACCOUNT_DB_TYPE=postgres
       - ACCOUNT_DB_HOST=account_tag_db
       - ACCOUNT_DB_PORT=${ACCOUNT_POSTGRES_PORT}
       - ACCOUNT_DB_USERNAME=${ACCOUNT_POSTGRES_USER}
       - ACCOUNT_DB_PASSWORD=${ACCOUNT_POSTGRES_PASSWORD}
       - ACCOUNT_DB_DATABASE=${ACCOUNT_POSTGRES_DATABASE}
-      - TAG_DB_TYPE=postgres
-      - TAG_DB_HOST=account_tag_db
-      - TAG_DB_PORT=${TAG_POSTGRES_PORT}
-      - TAG_DB_USERNAME=${TAG_POSTGRES_USER}
-      - TAG_DB_PASSWORD=${TAG_POSTGRES_PASSWORD}
-      - TAG_DB_DATABASE=${TAG_POSTGRES_DATABASE}
       - CHALLENGE_DB_TYPE=mongodb
       - CHALLENGE_DB_HOST=challenge_db
       - CHALLENGE_DB_PORT=${CHALLENGE_MONGODB_PORT}
@@ -31,9 +28,32 @@ services:
       - CHALLENGE_DB_PASSWORD=${CHALLENGE_MONGODB_PASSWORD}
       - CHALLENGE_DB_DATABASE=${CHALLENGE_MONGODB_DATABASE}
     depends_on:
+      - tag_service
       - account_tag_db
       - challenge_db
     container_name: ${GATEWAY_CONTAINER_NAME}
+  tag_service:
+    build:
+      context: ./services/tag
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV
+        - IMAGE_TAG_TAG_SERVICE_ALPINE
+    ports:
+      - ${TAG_SERVICE_PORT}:${TAG_SERVICE_PORT}
+    volumes:
+      - ./services/tag:/usr/src/tag-service
+    environment:
+      - PORT=${TAG_SERVICE_PORT}
+      - TAG_DB_TYPE=postgres
+      - TAG_DB_HOST=account_tag_db
+      - TAG_DB_PORT=${TAG_POSTGRES_PORT}
+      - TAG_DB_USERNAME=${TAG_POSTGRES_USER}
+      - TAG_DB_PASSWORD=${TAG_POSTGRES_PASSWORD}
+      - TAG_DB_DATABASE=${TAG_POSTGRES_DATABASE}
+    depends_on:
+      - account_tag_db
+    container_name: ${TAG_SERVICE_CONTAINER_NAME}
   account_tag_db:
     image: "postgres:${IMAGE_TAG_POSTGRES}"
     ports:

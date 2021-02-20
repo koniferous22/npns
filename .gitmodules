@@ -1,6 +1,9 @@
-[submodule "gateway"]
-	path = gateway
-	url = https://github.com/koniferous22/npns-gateway.git
 [submodule "db"]
 	path = db
 	url = https://github.com/koniferous22/npns-db.git
+[submodule "npns-gateway"]
+	path = gateway
+	url = https://github.com/koniferous22/npns-gateway.git
+[submodule "services/npns-tag-service"]
+	path = services/tag
+	url = https://github.com/koniferous22/npns-tag-service.git
