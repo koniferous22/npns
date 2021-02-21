@@ -75,9 +75,8 @@ docker-compose up -d
 
 echo "Executing migrations"
 cd $cloned_dir
-# Disbled until completed refactor
+
 docker-compose exec tag_service npm run orm -- migration:run
-# Different mikro-orm cli option
 docker-compose exec account_service npm run orm -- migration:run
 #docker-compose exec gateway npm run migrate:mongo up
 

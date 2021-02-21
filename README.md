@@ -73,6 +73,7 @@ Top-level repository
 
   VERIFICATION_TOKEN_CACHE_PORT=6379
   VERIFICATION_TOKEN_CACHE_PASSWORD=secret_redis_password
+  VERIFICATION_TOKEN_EXPIRATION_TIME=43200
 
   PGADMIN_EMAIL=admin@postgres.com
   PGADMIN_PASSWORD=password
@@ -105,10 +106,13 @@ Top-level repository
 * E2E tests for graphql queries and mutations
 * Mocks to be able to develop modules individually and not work in huge monorepo
 * DB Future TODO:
+  * Split PostGres account_tag_db into two separate (account, tag) to segregate sensite stuff 
   * Define which dbs should have replicas
     * What permissions are required to run migrations (potential refactor)
     * NOTE: postgres issue encountered during development: mikro-orm automatically required replica permission for connection, which was unsafe for application use
   * refactor into micro-orm where possible
 * Create production build
   * Docker swarm mode
+    * Overlay networks for permission (double check if that makes sense)
+    * Determine container replication
   * Disable playground on production build

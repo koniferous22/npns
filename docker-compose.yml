@@ -28,6 +28,10 @@ services:
       - account_service
       - challenge_db
     container_name: ${GATEWAY_CONTAINER_NAME}
+    networks: 
+      - frontend
+      - backend_account
+      - backend_challenge
   tag_service:
     build:
       context: ./services/tag
@@ -50,6 +54,8 @@ services:
     depends_on:
       - account_tag_db
     container_name: ${TAG_SERVICE_CONTAINER_NAME}
+    networks: 
+      - backend_challenge
   account_service:
     build: 
       context: ./services/account
@@ -63,6 +69,10 @@ services:
       - ./services/account:/usr/src/account-service
     environment: 
       - PORT=${ACCOUNT_SERVICE_PORT}
+      - VERIFICATION_TOKEN_CACHE_HOST=verification_token_cache
+      - VERIFICATION_TOKEN_CACHE_PORT=${VERIFICATION_TOKEN_CACHE_PORT}
+      - VERIFICATION_TOKEN_CACHE_PASSWORD=${VERIFICATION_TOKEN_CACHE_PASSWORD}
+      - VERIFICATION_TOKEN_EXPIRATION_TIME=${VERIFICATION_TOKEN_EXPIRATION_TIME}
       - ACCOUNT_DB_TYPE=postgres
       - ACCOUNT_DB_HOST=account_tag_db
       - ACCOUNT_DB_PORT=${ACCOUNT_POSTGRES_PORT}
@@ -73,11 +83,15 @@ services:
       - account_tag_db
       - verification_token_cache
     container_name: ${ACCOUNT_SERVICE_CONTAINER_NAME}
+    networks: 
+      - backend_account
   verification_token_cache:
     image: redis:${IMAGE_TAG_REDIS}
     ports:
       - ${VERIFICATION_TOKEN_CACHE_PORT}:${VERIFICATION_TOKEN_CACHE_PORT}
     command: redis-server --requirepass ${VERIFICATION_TOKEN_CACHE_PASSWORD} --port ${VERIFICATION_TOKEN_CACHE_PORT}
+    networks: 
+      - backend_account
   account_tag_db:
     image: "postgres:${IMAGE_TAG_POSTGRES}"
     ports:
@@ -88,6 +102,10 @@ services:
     volumes: 
       - ./.docker/account_tag_db:/var/lib/postgresql/data
       - ./.docker/postgres-scripts/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql
+    networks: 
+      - backend_challenge
+      - backend_account
+      - backoffice
   challenge_db:
     image: "mongo:${IMAGE_TAG_MONGO}"
     ports:
@@ -99,18 +117,23 @@ services:
     volumes:
       - ./.docker/challenge_db:/data/db
     command: mongod --auth
+    networks: 
+      - backend_challenge
+      - backoffice
   pgadmin:
     image: dpage/pgadmin4:${IMAGE_TAG_PGADMIN}
     environment:
-        PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
-        PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD} 
-        PGADMIN_LISTEN_PORT: 80
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD} 
+      PGADMIN_LISTEN_PORT: 80
     ports:
-        - ${PGADMIN_PORT}:80
+      - ${PGADMIN_PORT}:80
     volumes:
-        - ./.docker/pgadmin:/var/lib/pgadmin
+      - ./.docker/pgadmin:/var/lib/pgadmin
     depends_on:
-        - account_tag_db 
+      - account_tag_db 
+    networks:
+      - backoffice
   mongo-express:
     image: mongo-express
     restart: always
@@ -122,3 +145,15 @@ services:
       ME_CONFIG_MONGODB_SERVER: challenge_db
     depends_on:
       - challenge_db
+    networks: 
+      - backoffice
+      
+networks: 
+  frontend:
+    driver: bridge
+  backend_account:
+    driver: bridge
+  backend_challenge:
+    driver: bridge
+  backoffice:
+    driver: bridge
