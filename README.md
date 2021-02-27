@@ -36,9 +36,11 @@ Top-level repository
 
   TAG_SERVICE_CONTAINER_NAME=npns_tag_service
   TAG_SERVICE_PORT=4001
+  TAG_SERVICE_GRAPHQL_PATH=/graphql
 
   ACCOUNT_SERVICE_CONTAINER_NAME=npns_account_service
   ACCOUNT_SERVICE_PORT=4002
+  ACCOUNT_SERVICE_GRAPHQL_PATH=/graphql
   # Testing SMTP mailbox https://ethereal.email/
   ACCOUNT_SERVICE_NODEMAILER_HOST=smtp.ethereal.email
   ACCOUNT_SERVICE_NODEMAILER_PORT=587
