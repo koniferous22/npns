@@ -71,6 +71,7 @@ echo "Removing temporary network"
 docker network rm "$temp_network"
 
 echo "Running docker-compose for executing migrations"
+echo "[WARNING] In case of bad configuration following command will fail"
 docker-compose up -d
 
 echo "Executing migrations"

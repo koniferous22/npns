@@ -93,6 +93,8 @@ Top-level repository
     * For some linux system (edge cases) it should be possible to configure system group
   * Sets up mongodb user and collection, by executing mongo shell and evaluating javascript
     * `mongo -u $CHALLENGE_MONGODB_ROOT_USER -p $CHALLENGE_MONGODB_ROOT_PASSWORD $CHALLENGE_MONGODB_DATABASE --eval "<JAVASCRIPT_CODE>"`
+  * Starts temporary stack which triggers config runtime validation (loaded from .env)
+    * In case of bad configuration this step should already fail
   * Populates databases on shared volume with migrations located in
     * `gateway/src/account-service/migrations/`
     * `gateway/src/tag-service/migrations/`
