@@ -25,6 +25,7 @@ Top-level repository
   IMAGE_TAG_GATEWAY_ALPINE=current-alpine3.12
   IMAGE_TAG_TAG_SERVICE_ALPINE=current-alpine3.12
   IMAGE_TAG_ACCOUNT_SERVICE_ALPINE=current-alpine3.12
+  IMAGE_TAG_CHALLENGE_SERVICE_ALPINE=current-alpine3.12
   IMAGE_TAG_POSTGRES=latest
   IMAGE_TAG_MARIADB=latest
   IMAGE_TAG_MONGO=latest
@@ -52,6 +53,7 @@ Top-level repository
 
   CHALLENGE_SERVICE_CONTAINER_NAME=npns_challenge_service
   CHALLENGE_SERVICE_PORT=4003
+  CHALLENGE_SERVICE_GRAPHQL_PATH=/graphql
 
   ACCOUNT_POSTGRES_ROOT_USER=root
   ACCOUNT_POSTGRES_ROOT_PASSWORD=postgres_root_password
@@ -103,7 +105,7 @@ Top-level repository
   docker-compose exec gateway npm run orm -- migration:run -c account
   docker-compose exec gateway npm run orm -- migration:run -c tag
   ```
-4. Run the stack with `docker-compose up`
+4. Run the stack with `docker-compose up --build`
 5. Have fun
 
 **TODO**

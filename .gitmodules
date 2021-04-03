@@ -10,3 +10,6 @@
 [submodule "services/npns-account-service"]
 	path = services/account
 	url = https://github.com/koniferous22/npns-account-service.git
+[submodule "npns-challenge-service"]
+	path = services/challenge
+	url = https://github.com/koniferous22/npns-challenge-service.git
