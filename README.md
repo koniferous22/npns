@@ -25,7 +25,7 @@ Top-level repository
   IMAGE_TAG_GATEWAY_ALPINE=current-alpine3.12
   IMAGE_TAG_TAG_SERVICE_ALPINE=current-alpine3.12
   IMAGE_TAG_ACCOUNT_SERVICE_ALPINE=current-alpine3.12
-  IMAGE_TAG_CHALLENGE_SERVICE_ALPINE=current-alpine3.12
+  IMAGE_TAG_CONTENT_SERVICE_ALPINE=current-alpine3.12
   IMAGE_TAG_POSTGRES=latest
   IMAGE_TAG_MARIADB=latest
   IMAGE_TAG_MONGO=latest
@@ -51,13 +51,13 @@ Top-level repository
   ACCOUNT_SERVICE_NODEMAILER_PASSWORD=86GXzmB8sDN2u2Ycuy
   ACCOUNT_SERVICE_NOTIFICATION_SENDER_EMAIL=noreply@npns.biz
 
-  CHALLENGE_SERVICE_CONTAINER_NAME=npns_challenge_service
-  CHALLENGE_SERVICE_PORT=4003
-  CHALLENGE_SERVICE_GRAPHQL_PATH=/graphql
-  CHALLENGE_SERVICE_GRID_FS_MAX_FILES=10
-  CHALLENGE_SERVICE_GRID_FS_MAX_FILE_SIZE=10000000
-  CHALLENGE_SERVICE_LIMIT_CONTENT_UPLOADS=10
-  CHALLENGE_SERVICE_LIMIT_EDIT_COUNT=3
+  CONTENT_SERVICE_CONTAINER_NAME=npns_challenge_service
+  CONTENT_SERVICE_PORT=4003
+  CONTENT_SERVICE_GRAPHQL_PATH=/graphql
+  CONTENT_SERVICE_GRID_FS_MAX_FILES=10
+  CONTENT_SERVICE_GRID_FS_MAX_FILE_SIZE=10000000
+  CONTENT_SERVICE_LIMIT_CONTENT_UPLOADS=10
+  CONTENT_SERVICE_LIMIT_EDIT_COUNT=3
 
   ACCOUNT_POSTGRES_ROOT_USER=root
   ACCOUNT_POSTGRES_ROOT_PASSWORD=postgres_root_password
@@ -80,12 +80,12 @@ Top-level repository
   TAG_POSTGRES_PORT=5432
   TAG_POSTGRES_DATABASE=tag
 
-  CHALLENGE_MONGODB_ROOT_USER=root
-  CHALLENGE_MONGODB_ROOT_PASSWORD=mongo_root_password
-  CHALLENGE_MONGODB_USER=npns_user
-  CHALLENGE_MONGODB_PASSWORD=secret_password
-  CHALLENGE_MONGODB_DATABASE=challenge
-  CHALLENGE_MONGODB_PORT=27017
+  CONTENT_MONGODB_ROOT_USER=root
+  CONTENT_MONGODB_ROOT_PASSWORD=mongo_root_password
+  CONTENT_MONGODB_USER=npns_user
+  CONTENT_MONGODB_PASSWORD=secret_password
+  CONTENT_MONGODB_DATABASE=challenge
+  CONTENT_MONGODB_PORT=27017
 
   VERIFICATION_TOKEN_CACHE_PORT=6379
   VERIFICATION_TOKEN_CACHE_PASSWORD=secret_redis_password
@@ -98,7 +98,7 @@ Top-level repository
   * Asks for option whether you need root permissions to run docker (in most cases not necessary)
     * For some linux system (edge cases) it should be possible to configure system group
   * Sets up mongodb user and collection, by executing mongo shell and evaluating javascript
-    * `mongo -u $CHALLENGE_MONGODB_ROOT_USER -p $CHALLENGE_MONGODB_ROOT_PASSWORD $CHALLENGE_MONGODB_DATABASE --eval "<JAVASCRIPT_CODE>"`
+    * `mongo -u $CONTENT_MONGODB_ROOT_USER -p $CONTENT_MONGODB_ROOT_PASSWORD $CONTENT_MONGODB_DATABASE --eval "<JAVASCRIPT_CODE>"`
   * Starts temporary stack which triggers config runtime validation (loaded from .env)
     * In case of bad configuration this step should already fail
   * Populates databases on shared volume with migrations located in
