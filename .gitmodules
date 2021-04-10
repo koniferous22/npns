@@ -16,3 +16,6 @@
 [submodule "services/content"]
 	path = services/content
 	url = https://github.com/koniferous22/npns-content-service.git
+[submodule "services/challenge"]
+	path = services/challenge
+	url = https://github.com/koniferous22/npns-tag-service.git

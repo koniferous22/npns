@@ -13,50 +13,24 @@ services:
       - ./gateway:/usr/src/gateway
     environment:
       - PORT=${GATEWAY_PORT}
-      - TAG_SERVICE_HOST=http://${TAG_SERVICE_CONTAINER_NAME}
-      - TAG_SERVICE_PORT=${TAG_SERVICE_PORT}
-      - TAG_SERVICE_GRAPHQL_PATH=${TAG_SERVICE_GRAPHQL_PATH}
       - ACCOUNT_SERVICE_HOST=http://${ACCOUNT_SERVICE_CONTAINER_NAME}
       - ACCOUNT_SERVICE_PORT=${ACCOUNT_SERVICE_PORT}
       - ACCOUNT_SERVICE_GRAPHQL_PATH=${ACCOUNT_SERVICE_GRAPHQL_PATH}
       - ACCOUNT_SERVICE_JWT_SECRET=${ACCOUNT_SERVICE_JWT_SECRET}
       - ACCOUNT_SERVICE_JWT_ALGORITHM=${ACCOUNT_SERVICE_JWT_ALGORITHM}
+      - CHALLENGE_SERVICE_HOST=http://${CHALLENGE_SERVICE_CONTAINER_NAME}
+      - CHALLENGE_SERVICE_PORT=${CHALLENGE_SERVICE_PORT}
+      - CHALLENGE_SERVICE_GRAPHQL_PATH=${CHALLENGE_SERVICE_GRAPHQL_PATH}
       - CONTENT_SERVICE_HOST=http://${CONTENT_SERVICE_CONTAINER_NAME}
       - CONTENT_SERVICE_PORT=${CONTENT_SERVICE_PORT}
       - CONTENT_SERVICE_GRAPHQL_PATH=${CONTENT_SERVICE_GRAPHQL_PATH}
     depends_on:
-      - tag_service
+      - challenge_service
       - account_service
-      - challenge_db
     container_name: ${GATEWAY_CONTAINER_NAME}
     networks: 
       - frontend
       - backend_account
-      - backend_challenge
-  tag_service:
-    build:
-      context: ./services/tag
-      dockerfile: Dockerfile
-      args:
-        - NODE_ENV
-        - IMAGE_TAG_TAG_SERVICE_ALPINE
-    ports:
-      - ${TAG_SERVICE_PORT}:${TAG_SERVICE_PORT}
-    volumes:
-      - ./services/tag:/usr/src/tag-service
-    environment:
-      - PORT=${TAG_SERVICE_PORT}
-      - GRAPHQL_PATH=${TAG_SERVICE_GRAPHQL_PATH}
-      - TAG_DB_TYPE=postgres
-      - TAG_DB_HOST=account_tag_db
-      - TAG_DB_PORT=${TAG_POSTGRES_PORT}
-      - TAG_DB_USERNAME=${TAG_POSTGRES_USER}
-      - TAG_DB_PASSWORD=${TAG_POSTGRES_PASSWORD}
-      - TAG_DB_DATABASE=${TAG_POSTGRES_DATABASE}
-    depends_on:
-      - account_tag_db
-    container_name: ${TAG_SERVICE_CONTAINER_NAME}
-    networks: 
       - backend_challenge
   account_service:
     build: 
@@ -85,13 +59,13 @@ services:
       - NOTIFICATION_SENDER_EMAIL=${ACCOUNT_SERVICE_NOTIFICATION_SENDER_EMAIL}
       - WEB_APP_ADDRESS=http://localhost:3000
       - ACCOUNT_DB_TYPE=postgres
-      - ACCOUNT_DB_HOST=account_tag_db
+      - ACCOUNT_DB_HOST=account_challenge_db
       - ACCOUNT_DB_PORT=${ACCOUNT_POSTGRES_PORT}
       - ACCOUNT_DB_USERNAME=${ACCOUNT_POSTGRES_USER}
       - ACCOUNT_DB_PASSWORD=${ACCOUNT_POSTGRES_PASSWORD}
       - ACCOUNT_DB_DATABASE=${ACCOUNT_POSTGRES_DATABASE}
     depends_on: 
-      - account_tag_db
+      - account_challenge_db
       - verification_token_cache
     container_name: ${ACCOUNT_SERVICE_CONTAINER_NAME}
     networks: 
@@ -109,11 +83,36 @@ services:
       dockerfile: Dockerfile
       args:
         - NODE_ENV
+        - IMAGE_TAG_CHALLENGE_SERVICE_ALPINE
+    ports:
+      - ${CHALLENGE_SERVICE_PORT}:${CHALLENGE_SERVICE_PORT}
+    volumes:
+      - ./services/challenge:/usr/src/challenge-service
+    environment:
+      - PORT=${CHALLENGE_SERVICE_PORT}
+      - GRAPHQL_PATH=${CHALLENGE_SERVICE_GRAPHQL_PATH}
+      - CHALLENGE_DB_TYPE=postgres
+      - CHALLENGE_DB_HOST=account_challenge_db
+      - CHALLENGE_DB_PORT=${CHALLENGE_POSTGRES_PORT}
+      - CHALLENGE_DB_USERNAME=${CHALLENGE_POSTGRES_USER}
+      - CHALLENGE_DB_PASSWORD=${CHALLENGE_POSTGRES_PASSWORD}
+      - CHALLENGE_DB_DATABASE=${CHALLENGE_POSTGRES_DATABASE}
+    depends_on:
+      - account_challenge_db
+    container_name: ${CHALLENGE_SERVICE_CONTAINER_NAME}
+    networks: 
+      - backend_challenge
+  content_service:
+    build:
+      context: ./services/content
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV
         - IMAGE_TAG_CONTENT_SERVICE_ALPINE
     ports:
       - ${CONTENT_SERVICE_PORT}:${CONTENT_SERVICE_PORT}
     volumes:
-      - ./services/challenge:/usr/src/challenge-service
+      - ./services/content:/usr/src/content-service
     environment:
       - PORT=${CONTENT_SERVICE_PORT}
       - GRAPHQL_PATH=${CONTENT_SERVICE_GRAPHQL_PATH}
@@ -122,17 +121,17 @@ services:
       - LIMIT_CONTENT_UPLOADS=${CONTENT_SERVICE_LIMIT_CONTENT_UPLOADS}
       - LIMIT_EDIT_COUNT=${CONTENT_SERVICE_LIMIT_EDIT_COUNT}
       - CONTENT_DB_TYPE=mongodb
-      - CONTENT_DB_HOST=challenge_db
+      - CONTENT_DB_HOST=content_db
       - CONTENT_DB_PORT=${CONTENT_MONGODB_PORT}
       - CONTENT_DB_USERNAME=${CONTENT_MONGODB_USER}
       - CONTENT_DB_PASSWORD=${CONTENT_MONGODB_PASSWORD}
       - CONTENT_DB_DATABASE=${CONTENT_MONGODB_DATABASE}
     depends_on:
-      - challenge_db 
+      - content_db 
     container_name: ${CONTENT_SERVICE_CONTAINER_NAME}
     networks: 
       - backend_challenge
-  account_tag_db:
+  account_challenge_db:
     image: "postgres:${IMAGE_TAG_POSTGRES}"
     ports:
       - ${ACCOUNT_POSTGRES_PORT}:${ACCOUNT_POSTGRES_PORT}
@@ -140,13 +139,13 @@ services:
       - POSTGRES_USER=${ACCOUNT_POSTGRES_ROOT_USER}
       - POSTGRES_PASSWORD=${ACCOUNT_POSTGRES_ROOT_PASSWORD}
     volumes: 
-      - ./.docker/account_tag_db:/var/lib/postgresql/data
+      - ./.docker/account_challenge_db:/var/lib/postgresql/data
       - ./.docker/postgres-scripts/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql
     networks: 
       - backend_challenge
       - backend_account
       - backoffice
-  challenge_db:
+  content_db:
     image: "mongo:${IMAGE_TAG_MONGO}"
     ports:
       - ${CONTENT_MONGODB_PORT}:${CONTENT_MONGODB_PORT}
@@ -155,7 +154,7 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${CONTENT_MONGODB_ROOT_PASSWORD}
       - MONGO_INITDB_DATABASE=${CONTENT_MONGODB_DATABASE}
     volumes:
-      - ./.docker/challenge_db:/data/db
+      - ./.docker/content_db:/data/db
     command: mongod --auth
     networks: 
       - backend_challenge
@@ -171,7 +170,7 @@ services:
     volumes:
       - ./.docker/pgadmin:/var/lib/pgadmin
     depends_on:
-      - account_tag_db 
+      - account_challenge_db 
     networks:
       - backoffice
   mongo-express:
@@ -182,9 +181,9 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${CONTENT_MONGODB_ROOT_USER}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${CONTENT_MONGODB_ROOT_PASSWORD}
-      ME_CONFIG_MONGODB_SERVER: challenge_db
+      ME_CONFIG_MONGODB_SERVER: content_db
     depends_on:
-      - challenge_db
+      - content_db
     networks: 
       - backoffice
       

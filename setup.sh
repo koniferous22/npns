@@ -4,8 +4,8 @@ set -euo pipefail
 cloned_dir=`dirname $0`
 echo "Location of setup script: \"$cloned_dir\""
 echo "Setting up directories for docker volumes"
-mkdir -p "$cloned_dir/.docker/account_tag_db"
-mkdir -p "$cloned_dir/.docker/challenge_db"
+mkdir -p "$cloned_dir/.docker/account_challenge_db"
+mkdir -p "$cloned_dir/.docker/content_db"
 mkdir -p "$cloned_dir/.docker/pgadmin"
 mkdir -p "$cloned_dir/.docker/postgres-scripts"
 echo "Setting permission '777, (all write)' for created pgadmin directory bc of docker errors"
@@ -19,8 +19,8 @@ echo "# TODO when editing this file, please update
 NODE_ENV=development
 
 IMAGE_TAG_GATEWAY_ALPINE=current-alpine3.12
-IMAGE_TAG_TAG_SERVICE_ALPINE=current-alpine3.12
 IMAGE_TAG_ACCOUNT_SERVICE_ALPINE=current-alpine3.12
+IMAGE_TAG_CHALLENGE_SERVICE_ALPINE=current-alpine3.12
 IMAGE_TAG_CONTENT_SERVICE_ALPINE=current-alpine3.12
 IMAGE_TAG_POSTGRES=latest
 IMAGE_TAG_MARIADB=latest
@@ -30,10 +30,6 @@ IMAGE_TAG_REDIS=rc-buster
 
 GATEWAY_CONTAINER_NAME=npns_gateway
 GATEWAY_PORT=4000
-
-TAG_SERVICE_CONTAINER_NAME=npns_tag_service
-TAG_SERVICE_PORT=4001
-TAG_SERVICE_GRAPHQL_PATH=/graphql
 
 ACCOUNT_SERVICE_CONTAINER_NAME=npns_account_service
 ACCOUNT_SERVICE_PORT=4002
@@ -47,7 +43,11 @@ ACCOUNT_SERVICE_NODEMAILER_USER=oren.cremin@ethereal.email
 ACCOUNT_SERVICE_NODEMAILER_PASSWORD=86GXzmB8sDN2u2Ycuy
 ACCOUNT_SERVICE_NOTIFICATION_SENDER_EMAIL=noreply@npns.biz
 
-CONTENT_SERVICE_CONTAINER_NAME=npns_challenge_service
+CHALLENGE_SERVICE_CONTAINER_NAME=npns_challenge_service
+CHALLENGE_SERVICE_PORT=4001
+CHALLENGE_SERVICE_GRAPHQL_PATH=/graphql
+
+CONTENT_SERVICE_CONTAINER_NAME=npns_content_service
 CONTENT_SERVICE_PORT=4003
 CONTENT_SERVICE_GRAPHQL_PATH=/graphql
 CONTENT_SERVICE_GRID_FS_MAX_FILES=10
@@ -71,16 +71,16 @@ ACCOUNT_POSTGRES_DATABASE=account
 # TAG_MARIADB_PORT=3306
 
 # NOTE for now should be identical with account setup
-TAG_POSTGRES_USER=tag
-TAG_POSTGRES_PASSWORD=secret_password
-TAG_POSTGRES_PORT=5432
-TAG_POSTGRES_DATABASE=tag
+CHALLENGE_POSTGRES_USER=challenge
+CHALLENGE_POSTGRES_PASSWORD=secret_password
+CHALLENGE_POSTGRES_PORT=5432
+CHALLENGE_POSTGRES_DATABASE=challenge
 
 CONTENT_MONGODB_ROOT_USER=root
 CONTENT_MONGODB_ROOT_PASSWORD=mongo_root_password
 CONTENT_MONGODB_USER=npns_user
 CONTENT_MONGODB_PASSWORD=secret_password
-CONTENT_MONGODB_DATABASE=challenge
+CONTENT_MONGODB_DATABASE=content
 CONTENT_MONGODB_PORT=27017
 
 VERIFICATION_TOKEN_CACHE_PORT=6379
@@ -90,7 +90,6 @@ VERIFICATION_TOKEN_EXPIRATION_TIME=43200
 PGADMIN_EMAIL=admin@postgres.com
 PGADMIN_PASSWORD=password
 PGADMIN_PORT=8080
-
 " > "$cloned_dir/.env"
 
 function yesno() {
