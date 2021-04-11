@@ -19,3 +19,6 @@
 [submodule "services/challenge"]
 	path = services/challenge
 	url = https://github.com/koniferous22/npns-tag-service.git
+[submodule "multi-write-proxy"]
+	path = multi-write-proxy
+	url = https://github.com/koniferous22/npns-multi-write-proxy.git
