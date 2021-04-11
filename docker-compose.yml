@@ -109,36 +109,8 @@ services:
       - CONTENT_DB_DATABASE=${CONTENT_MONGODB_DATABASE}
     depends_on:
       - account_challenge_db
-    container_name: ${CHALLENGE_SERVICE_CONTAINER_NAME}
-    networks: 
-      - backend_challenge
-  content_service:
-    build:
-      context: ./services/content
-      dockerfile: Dockerfile
-      args:
-        - NODE_ENV
-        - IMAGE_TAG_CONTENT_SERVICE_ALPINE
-    ports:
-      - ${CONTENT_SERVICE_PORT}:${CONTENT_SERVICE_PORT}
-    volumes:
-      - ./services/content:/usr/src/content-service
-    environment:
-      - PORT=${CONTENT_SERVICE_PORT}
-      - GRAPHQL_PATH=${CONTENT_SERVICE_GRAPHQL_PATH}
-      - GRID_FS_MAX_FILES=${CONTENT_SERVICE_GRID_FS_MAX_FILES}
-      - GRID_FS_MAX_FILE_SIZE=${CONTENT_SERVICE_GRID_FS_MAX_FILE_SIZE}
-      - LIMIT_CONTENT_UPLOADS=${CONTENT_SERVICE_LIMIT_CONTENT_UPLOADS}
-      - LIMIT_EDIT_COUNT=${CONTENT_SERVICE_LIMIT_EDIT_COUNT}
-      - CONTENT_DB_TYPE=mongodb
-      - CONTENT_DB_HOST=content_db
-      - CONTENT_DB_PORT=${CONTENT_MONGODB_PORT}
-      - CONTENT_DB_USERNAME=${CONTENT_MONGODB_USER}
-      - CONTENT_DB_PASSWORD=${CONTENT_MONGODB_PASSWORD}
-      - CONTENT_DB_DATABASE=${CONTENT_MONGODB_DATABASE}
-    depends_on:
       - content_db 
-    container_name: ${CONTENT_SERVICE_CONTAINER_NAME}
+    container_name: ${CHALLENGE_SERVICE_CONTAINER_NAME}
     networks: 
       - backend_challenge
   account_challenge_db:
