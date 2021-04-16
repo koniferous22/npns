@@ -34,6 +34,7 @@ Top-level repository
 
   GATEWAY_CONTAINER_NAME=npns_gateway
   GATEWAY_PORT=4000
+  GATEWAY_GRAPHQL_PATH=/graphql
 
   MULTI_WRITE_PROXY_CONTAINER_NAME=npns_multi_write_proxy
   MULTI_WRITE_PROXY_PORT=4001
