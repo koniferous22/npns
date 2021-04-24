@@ -122,6 +122,10 @@ services:
       CHALLENGE_DB_USERNAME: ${CHALLENGE_POSTGRES_USER}
       CHALLENGE_DB_PASSWORD: ${CHALLENGE_POSTGRES_PASSWORD}
       CHALLENGE_DB_DATABASE: ${CHALLENGE_POSTGRES_DATABASE}
+      CHALLENGE_VIEW_CACHE_HOST: challenge_view_cache
+      CHALLENGE_VIEW_CACHE_PORT: ${CHALLENGE_VIEW_CACHE_PORT}
+      CHALLENGE_VIEW_CACHE_PASSWORD: ${CHALLENGE_VIEW_CACHE_PASSWORD}
+      CHALLENGE_VIEW_EXPIRATION_TIME: ${CHALLENGE_VIEW_EXPIRATION_TIME}
       GRID_FS_MAX_FILES: ${CHALLENGE_SERVICE_GRID_FS_MAX_FILES}
       GRID_FS_MAX_FILE_SIZE: ${CHALLENGE_SERVICE_GRID_FS_MAX_FILE_SIZE}
       LIMIT_CONTENT_UPLOADS: ${CHALLENGE_SERVICE_LIMIT_CONTENT_UPLOADS}
@@ -137,9 +141,17 @@ services:
     depends_on:
       - account_challenge_db
       - content_db 
+      - challenge_view_cache
     container_name: ${CHALLENGE_SERVICE_CONTAINER_NAME}
     networks: 
       - backend_challenge
+  challenge_view_cache:
+    image: redis:${IMAGE_TAG_REDIS}
+    ports:
+      - ${CHALLENGE_VIEW_CACHE_PORT}:${CHALLENGE_VIEW_CACHE_PORT}
+    command: redis-server --requirepass ${CHALLENGE_VIEW_CACHE_PASSWORD} --port ${CHALLENGE_VIEW_CACHE_PORT}
+    networks: 
+      - backend_challenge 
   account_challenge_db:
     image: "postgres:${IMAGE_TAG_POSTGRES}"
     ports:
