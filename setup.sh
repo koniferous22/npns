@@ -122,4 +122,8 @@ else
     "$cloned_dir/docker_setup.sh"
 fi
 
+echo "Installing all dependencies"
+"$cloned_dir/npm-all.sh" install gateway multi-write-proxy services/account services/challenge
+
 echo "Setup finished"
+echo "run \`docker-compose up\` to start the app"

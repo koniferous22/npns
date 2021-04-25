@@ -84,4 +84,3 @@ docker-compose exec challenge_service npm run orm -- migration:run
 # CLEANUP
 docker-compose down
 echo "Docker setup complete"
-echo "run \`docker-compose up\` to start the app"

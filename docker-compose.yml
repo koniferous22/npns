@@ -161,7 +161,7 @@ services:
       POSTGRES_PASSWORD: ${ACCOUNT_POSTGRES_ROOT_PASSWORD}
     volumes: 
       - ./.docker/account_challenge_db:/var/lib/postgresql/data
-      - ./.docker/postgres-scripts/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql
+      - ./.docker/postgres-scripts:/docker-entrypoint-initdb.d
     networks: 
       - backend_challenge
       - backend_account

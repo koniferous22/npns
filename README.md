@@ -108,6 +108,7 @@ Top-level repository
   docker-compose exec account_service npm run orm -- migration:run
   docker-compose exec challenge_service npm run orm -- migration:run
   ```
+  * Last step: installs all dependencies with `npm-all.sh` helper script
 4. Run the stack with `docker-compose up --build`
 5. Have fun
 
